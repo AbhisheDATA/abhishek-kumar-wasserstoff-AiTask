@@ -1,0 +1,8 @@
+langchain
+langchain-google-genai
+langchain_core
+langchain_openai
+langchain_experimental
+flask
+pathlib
+-e .
