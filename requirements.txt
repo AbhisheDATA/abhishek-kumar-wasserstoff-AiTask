@@ -3,6 +3,9 @@ langchain-google-genai
 langchain_core
 langchain_openai
 langchain_experimental
+langchain_community
 flask
 pathlib
+html2text
+jsonify
 -e .

@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import json
 import os
+from langchain_core.documents import Document
 
 app = Flask(__name__)
 
@@ -31,7 +32,8 @@ def handle_webhook():
         post_title = data.get('post_title')
         post_content = data.get('post_content')
         post_url = data.get('post_url')
-
+        document = Document(page_content=post_content, metadata={"title": post_title, "post id": post_id})
+        print(document)
         # Load existing data
         existing_data = load_data()
 

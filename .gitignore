@@ -162,3 +162,5 @@ artifacts/*
 .env
 data/temp/*
 src/__pycache__/*
+logs/
+webhook_data.json

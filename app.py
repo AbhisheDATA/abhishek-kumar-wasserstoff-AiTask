@@ -1,65 +1,64 @@
-import requests
+from flask import Flask, request, jsonify
 import json
 import os
+from src.RAG_Chatbot import *
+from src import logger
 
-# URL of the WordPress REST API endpoint
-wordpress_url = 'http://localhost/wordpress/wp-json/webhook/v1/posts'
+app = Flask(__name__)
 
-# Define the post_list variable outside the function
-post_list = []
+# File path for storing the data
+DATA_FILE_PATH = 'webhook_data.json'
 
-# Function to add fetched posts to the post_list
-def add_to_json(posts, post_list):
-    for post in posts:
-        # Check if 'post_title' key is present in the post
-        if 'post_title' in post:
-            # Append post details to the list
-            post_list.append({
-                'ID': post['ID'],
-                'Title': post['post_title'],
-                'Content': post['post_content'],
-                'Author': post['post_author'],
-                'Date': post['post_date']
-            })
-        else:
-            print("Error: 'post_title' key not found in post")
+# Function to load data from the JSON file
+def load_data():
+    if os.path.exists(DATA_FILE_PATH):
+        with open(DATA_FILE_PATH, 'r') as file:
+            return json.load(file)
+    else:
+        return {}
 
-# Function to fetch post details from the WordPress REST API
-def fetch_posts_and_save():
-    try:
-        # Send GET request to the WordPress API endpoint
-        response = requests.get(wordpress_url)
+# Function to save data to the JSON file
+def save_data(data):
+    with open(DATA_FILE_PATH, 'w') as file:
+        json.dump(data, file, indent=4)  # Indent for better readability
 
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Parse the JSON response
-            posts = response.json()
-            
-            # Check if the JSON file exists
-            if os.path.exists('wordpress_posts.json'):
-                with open('wordpress_posts.json', 'r') as json_file:
-                    existing_posts = json.load(json_file)
-                    for post in existing_posts:
-                        # Check if 'ID' key is present in the post
-                        if 'ID' in post:
-                            # Check if the post ID already exists in the existing_posts list
-                            if any(existing_post['ID'] == post['ID'] for existing_post in existing_posts):
-                                print(f"Post with ID {post['ID']} already exists in JSON file. Skipping...")
-                            else:
-                                add_to_json(posts, post_list)
-                        else:
-                            print("Error: 'ID' key not found in post")
-            else:
-                add_to_json(posts, post_list)
+@app.route('/webhook', methods=['POST'])
+def handle_webhook():
+    # Check if the request contains JSON data
+    if request.is_json:
+        data = request.get_json()
+        
+        # Process the webhook payload
+        post_id = data.get('post_id')
+        post_title = data.get('post_title')
+        post_content = data.get('post_content')
+        post_url = data.get('post_url')
+        docs_transformed=transform_document(post_title,post_content,post_id)
+        chunks=documents_into_chunks(docs_transformed)
+        print(f"chunks----{chunks}")
+        print(f"number of chunks: {len(chunks)}")
 
-            # Save the post details to a JSON file
-            with open('wordpress_posts.json', 'w') as json_file:  # Change 'a' to 'w' to overwrite existing file
-                json.dump(post_list, json_file, indent=4)
-                print("Posts saved to 'wordpress_posts.json' file successfully!")
-        else:
-            print("Failed to fetch posts:", response.text)
-    except Exception as e:
-        print("Error:", e)
+        
+        # Load existing data
+        existing_data = load_data()
 
-# Call the function to fetch posts and save them to a JSON file
-fetch_posts_and_save()
+        # Update existing data with new information
+        existing_data[post_id] = {
+            'post_title': post_title,
+            'post_content': post_content,
+            'post_url': post_url
+        }
+
+        # Save data to the JSON file
+        save_data(existing_data)
+
+        # Do something with the data (e.g., save it to a database)
+        print(f"Received webhook for post {post_id}: {post_title}")
+
+        # Send a response back to confirm receipt
+        return jsonify({'message': 'Webhook received successfully'}), 200
+    else:
+        return jsonify({'error': 'Invalid JSON payload'}), 400
+
+if __name__ == '__main__':
+    app.run(debug=True)
