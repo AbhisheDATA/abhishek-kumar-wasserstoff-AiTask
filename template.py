@@ -35,15 +35,15 @@ logger = setup_logger()
 # List of directories to create if not exist
 list_of_directories = [
     "Data/docs",
-    "Data/temp",
-    "Data/local_vector_store"
+    "Data/temp"
 ]
 
 # List of files to create if not exist
 list_of_files = [
     "src/__init__.py",
     "src/helper.py",
-    "src/RAG_Chatbot.py",
+    "src/component/__init__.py",
+    "src/component/RAG_Chatbot.py",
     ".env",
     "setup.py",
     "research/trials.ipynb",

@@ -4,8 +4,11 @@ langchain_core
 langchain_openai
 langchain_experimental
 langchain_community
+langchain-chroma
 flask
 pathlib
 html2text
 jsonify
+faiss-cpu
+python-dotenv
 -e .

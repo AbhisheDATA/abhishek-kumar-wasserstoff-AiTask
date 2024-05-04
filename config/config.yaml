@@ -1,0 +1,2 @@
+data_root: Data
+VECTOR_STORE_DIR: Data/local_vector_store

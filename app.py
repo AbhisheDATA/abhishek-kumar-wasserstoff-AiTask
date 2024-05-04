@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import json
 import os
-from src.RAG_Chatbot import *
+from src.component.RAG_Chatbot import DocumentProcessor
 from src import logger
 
 app = Flask(__name__)
@@ -27,18 +27,20 @@ def handle_webhook():
     # Check if the request contains JSON data
     if request.is_json:
         data = request.get_json()
-        
+        print(f"Received webhook for post {post_id}: {post_title}")
         # Process the webhook payload
         post_id = data.get('post_id')
         post_title = data.get('post_title')
         post_content = data.get('post_content')
         post_url = data.get('post_url')
-        docs_transformed=transform_document(post_title,post_content,post_id)
-        chunks=documents_into_chunks(docs_transformed)
-        print(f"chunks----{chunks}")
+        object=DocumentProcessor('googleai')
+        docs_transformed=object.transform_document(post_title,post_content,post_id)
+        chunks=object.documents_into_chunks(docs_transformed)
         print(f"number of chunks: {len(chunks)}")
+        embedding=object.load_embedding_model()
+        object.crate_and_load_vector_store(embedding,chunks)
+        print("vector store created")
 
-        
         # Load existing data
         existing_data = load_data()
 
@@ -51,9 +53,6 @@ def handle_webhook():
 
         # Save data to the JSON file
         save_data(existing_data)
-
-        # Do something with the data (e.g., save it to a database)
-        print(f"Received webhook for post {post_id}: {post_title}")
 
         # Send a response back to confirm receipt
         return jsonify({'message': 'Webhook received successfully'}), 200
