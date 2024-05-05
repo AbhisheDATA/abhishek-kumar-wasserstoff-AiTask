@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 # path for the congif yaml file 
+
 CONFIG_FILE_PATH = Path("config/config.yaml")
 
 def setup_logger():

@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
-from src.helper import read_yaml 
-from src import CONFIG_FILE_PATH
+from wordpress_chatbot.helper import read_yaml 
+from wordpress_chatbot import CONFIG_FILE_PATH
 #######################################################################################
 #                import libraries for text preprocessing
 #######################################################################################
@@ -101,8 +101,8 @@ class DocumentProcessor:
         """
         # Define environment variable names for different embeddings
         embedding_env_vars = {
-            "openai": "OPENAI_API_KEY",
-            "googleai": "GOOGLE_API_KEY"
+            "OpenAI": "OPENAI_API_KEY",
+            "GoogleAI": "GOOGLE_API_KEY"
         }
 
         # Check if the embedding name is valid
@@ -120,9 +120,9 @@ class DocumentProcessor:
         api_key = os.getenv(env_var_name)
 
         # Initialize vector embedding based on the embedding name
-        if self.embedding_name == "openai":
+        if self.embedding_name == "OpenAI":
             embeddings = OpenAIEmbeddings(api_key=api_key)
-        elif self.embedding_name == "googleai":
+        elif self.embedding_name == "GoogleAI":
             embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=api_key)
         else:
             raise ValueError(f"Unsupported embedding: {self.embedding_name}")

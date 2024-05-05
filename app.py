@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 import json
 import os
-from src.component.RAG_Chatbot import DocumentProcessor
-from src import logger
+from wordpress_chatbot.component.vectorstore import DocumentProcessor
+from wordpress_chatbot import logger
 
 app = Flask(__name__)
 
@@ -33,7 +33,7 @@ def handle_webhook():
         post_title = data.get('post_title')
         post_content = data.get('post_content')
         post_url = data.get('post_url')
-        object=DocumentProcessor('googleai')
+        object=DocumentProcessor('GoogleAI')
         docs_transformed=object.transform_document(post_title,post_content,post_id)
         chunks=object.documents_into_chunks(docs_transformed)
         print(f"number of chunks: {len(chunks)}")
