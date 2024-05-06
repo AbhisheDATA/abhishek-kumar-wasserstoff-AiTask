@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,render_template
 import json
 import os
 from wordpress_chatbot.component.vectorstore import DocumentProcessor
+from wordpress_chatbot.component.RAG_Chatbot import Chatbot
 from wordpress_chatbot import logger
 
 app = Flask(__name__)
@@ -27,12 +28,13 @@ def handle_webhook():
     # Check if the request contains JSON data
     if request.is_json:
         data = request.get_json()
-        print(f"Received webhook for post {post_id}: {post_title}")
         # Process the webhook payload
         post_id = data.get('post_id')
         post_title = data.get('post_title')
         post_content = data.get('post_content')
         post_url = data.get('post_url')
+        print(f"Received webhook for post {post_id}: {post_title}")
+        '''
         object=DocumentProcessor('GoogleAI')
         docs_transformed=object.transform_document(post_title,post_content,post_id)
         chunks=object.documents_into_chunks(docs_transformed)
@@ -40,7 +42,7 @@ def handle_webhook():
         embedding=object.load_embedding_model()
         object.crate_and_load_vector_store(embedding,chunks)
         print("vector store created")
-
+        '''
         # Load existing data
         existing_data = load_data()
 
@@ -58,6 +60,26 @@ def handle_webhook():
         return jsonify({'message': 'Webhook received successfully'}), 200
     else:
         return jsonify({'error': 'Invalid JSON payload'}), 400
+    
+@app.route("/")
+def index():
+    return render_template('chat.html')
+
+# Initialize the Chatbot instance
+chatbot = Chatbot(llm_provider="GoogleAI")
+
+# Retrieve the vector store and create a retriever
+retriever = chatbot.vectorstore_retriver()
+chain=chatbot.conversational_qa_chain(retriever)
+    
+@app.route("/get", methods=["GET", "POST"])
+def chat():
+    msg = request.form["msg"]
+    input = msg
+    print(input)
+    response=chain.invoke({"question": input})
+    print("answer : ", response["answer"])
+    return str(response["answer"])
 
 if __name__ == '__main__':
     app.run(debug=True)

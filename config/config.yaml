@@ -6,4 +6,4 @@ googleAI_model: "gemini-pro"
 
 top_p:
   openai: "1"
-  googleai: "0.95"
+  googleai: "0.98"
