@@ -2,7 +2,6 @@ langchain
 langchain-google-genai
 langchain_core
 langchain_openai
-langchain_experimental
 langchain_community
 langchain-chroma
 flask
