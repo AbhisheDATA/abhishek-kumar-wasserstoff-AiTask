@@ -5,5 +5,5 @@ OpenAI_model: "gpt-3.5-turbo"
 googleAI_model: "gemini-pro"
 
 top_p:
-  openai: "1"
+  openai: 1
   googleai: "0.98"

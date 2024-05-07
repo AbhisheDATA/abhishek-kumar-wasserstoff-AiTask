@@ -38,7 +38,7 @@ def handle_webhook():
         post_url = data.get('post_url')
         print(f"Received webhook for post {post_id}: {post_title}")
         
-        object=DocumentProcessor('GoogleAI')
+        object=DocumentProcessor('OpenAI')
         docs_transformed=object.transform_document(post_title,post_content,post_id)
         chunks=object.documents_into_chunks(docs_transformed)
         print(f"number of chunks: {len(chunks)}")
@@ -65,10 +65,10 @@ def handle_webhook():
         return jsonify({'error': 'Invalid JSON payload'}), 400
 
 
-chatbot = Chatbot(llm_provider="GoogleAI")
+chatbot = Chatbot(llm_provider="OpenAI")
 retriever = chatbot.vectorstore_retriver()
 chain = chatbot.conversational_qa_chain(retriever)
-    
+
 @app.route("/get", methods=["GET", "POST"])
 def chat():
     msg = request.form["msg"]

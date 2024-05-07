@@ -43,13 +43,13 @@ class Chatbot:
             standalone_query_generation_llm = ChatOpenAI(
                 api_key=OPENAI_API_KEY,
                 model=self.config.OpenAI_model,
-                temperature=0.4,
+                temperature=0.3,
             )
             response_generation_llm = ChatOpenAI(
                 api_key=OPENAI_API_KEY,
                 model=self.config.OpenAI_model,
-                temperature=0.4,
-                model_kwargs={"top_p": self.config.top_p.openai},
+                temperature=0.3,
+                model_kwargs={"top_p": 0.80},
             )
         elif self.llm_provider == "GoogleAI":
             GOOGLE_API_KEY = load_api_key("GoogleAI")
@@ -176,7 +176,7 @@ class Chatbot:
         except Exception as e:
             # Raise an exception if there is an error in initializing the language models or constructing the chain
             raise Exception("Error in initializing conversational QA chain: " + str(e))
-        
+            
 '''
 # Initialize the Chatbot instance
 chatbot = Chatbot(llm_provider="GoogleAI")
