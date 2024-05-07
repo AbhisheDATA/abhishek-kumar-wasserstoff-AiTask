@@ -25,10 +25,10 @@
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
 }
 
-.chatbot-chat-messages {
-    overflow: auto;
+.chatbot-chat-messages{
+    overflow:auto;
     height: calc( 100% - 60px );
-    border-radius: 15px;;
+    border-radius: 15px;
 }
 
 .chatbot-chat-message {
@@ -37,6 +37,7 @@
     margin-bottom: 10px;
     padding: 10px;
     font-size: 0.9em;
+    font-family: 'Franklin Gothic Medium';
 }
 
 .chatbot-chat-message.user {
@@ -67,6 +68,7 @@
     right: 7px;
     top: 6px;
     padding: 5px;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
 }
+

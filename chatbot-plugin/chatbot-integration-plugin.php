@@ -21,8 +21,6 @@ function custom_chatbot_enqueue_scripts() {
 }
 add_action('wp_enqueue_scripts', 'custom_chatbot_enqueue_scripts');
 
-// Enqueue CSS
-##wp_enqueue_style('chatbot-style', plugins_url('assets/css/style.css', __FILE__ ));
 
 // Hook the chatbox HTML to wp_footer action
 add_action('wp_footer', function() {
@@ -31,14 +29,12 @@ add_action('wp_footer', function() {
     <div class="chatbot-chatbox">
         <div class="chatbot-chat-messages">
             <div class="chatbot-chat-message assistant">
-                Hello! I am your assistant.
+                Hello! I am your assistant.How can i help you
             </div>
-            <div class="chatbot-chat-message user">
-                What's up?
-            </div>
+            <div class="chatbot-chat-message user"></div>
         </div>
         <div class="chatbot-chat-input-wrapper">
-            <textarea class="chatbot-chat-input"></textarea>
+            <textarea class="chatbot-chat-input" placeholder="Please write your query"></textarea>
             <button class="chatbot-send">Send</button>
         </div>
     </div>

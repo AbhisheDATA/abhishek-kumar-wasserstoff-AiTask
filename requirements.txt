@@ -11,4 +11,5 @@ html2text
 jsonify
 faiss-cpu
 python-dotenv
+flask_cors
 -e .

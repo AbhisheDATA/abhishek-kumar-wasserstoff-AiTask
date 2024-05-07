@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify,render_template
+from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 import json
 import os
 from wordpress_chatbot.component.vectorstore import DocumentProcessor
@@ -6,6 +7,7 @@ from wordpress_chatbot.component.RAG_Chatbot import Chatbot
 from wordpress_chatbot import logger
 
 app = Flask(__name__)
+CORS(app)
 
 # File path for storing the data
 DATA_FILE_PATH = 'webhook_data.json'
@@ -23,6 +25,7 @@ def save_data(data):
     with open(DATA_FILE_PATH, 'w') as file:
         json.dump(data, file, indent=4)  # Indent for better readability
 
+
 @app.route('/webhook', methods=['POST'])
 def handle_webhook():
     # Check if the request contains JSON data
@@ -34,15 +37,15 @@ def handle_webhook():
         post_content = data.get('post_content')
         post_url = data.get('post_url')
         print(f"Received webhook for post {post_id}: {post_title}")
-        '''
+        
         object=DocumentProcessor('GoogleAI')
         docs_transformed=object.transform_document(post_title,post_content,post_id)
         chunks=object.documents_into_chunks(docs_transformed)
         print(f"number of chunks: {len(chunks)}")
         embedding=object.load_embedding_model()
         object.crate_and_load_vector_store(embedding,chunks)
-        print("vector store created")
-        '''
+        print("vector store loaded successfully")
+        
         # Load existing data
         existing_data = load_data()
 
@@ -60,17 +63,11 @@ def handle_webhook():
         return jsonify({'message': 'Webhook received successfully'}), 200
     else:
         return jsonify({'error': 'Invalid JSON payload'}), 400
-    
-@app.route("/")
-def index():
-    return render_template('chat.html')
 
-# Initialize the Chatbot instance
+
 chatbot = Chatbot(llm_provider="GoogleAI")
-
-# Retrieve the vector store and create a retriever
 retriever = chatbot.vectorstore_retriver()
-chain=chatbot.conversational_qa_chain(retriever)
+chain = chatbot.conversational_qa_chain(retriever)
     
 @app.route("/get", methods=["GET", "POST"])
 def chat():

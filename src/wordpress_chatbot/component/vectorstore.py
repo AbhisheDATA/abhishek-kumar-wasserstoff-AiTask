@@ -53,7 +53,7 @@ class DocumentProcessor:
             document = [Document(page_content=post_title + post_content, metadata={"title": post_title, "post id": post_id})]
 
             # Transform the document from HTML to plain text
-            html2text = Html2TextTransformer()
+            html2text = Html2TextTransformer(ignore_links=False)
             docs_transformed = html2text.transform_documents(document)
 
             # Return the transformed documents
