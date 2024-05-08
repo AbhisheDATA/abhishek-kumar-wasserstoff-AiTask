@@ -48,8 +48,7 @@ class Chatbot:
             response_generation_llm = ChatOpenAI(
                 api_key=OPENAI_API_KEY,
                 model=self.config.OpenAI_model,
-                temperature=0.3,
-                model_kwargs={"top_p": 0.80},
+                temperature=0.3
             )
         elif self.llm_provider == "GoogleAI":
             GOOGLE_API_KEY = load_api_key("GoogleAI")
@@ -93,7 +92,7 @@ class Chatbot:
             local_db = FAISS.load_local(local_vector_dir, self.embedding)
             
             # Create a retriever from the loaded vector store with search parameters
-            retriever = local_db.as_retriever(search_kwargs={'k': 6})
+            retriever = local_db.as_retriever(search_kwargs={'k': 10})
             
             return retriever
         except Exception as e:
@@ -179,12 +178,19 @@ class Chatbot:
             
 '''
 # Initialize the Chatbot instance
-chatbot = Chatbot(llm_provider="GoogleAI")
+chatbot = Chatbot(llm_provider="OpenAI")
 
 # Retrieve the vector store and create a retriever
 retriever = chatbot.vectorstore_retriver()
-chain=chatbot.conversational_qa_chain(retriever)
-response=chain.invoke({"question": " Getting Python "})
-answer = response["answer"]
-print(answer)
+chain = chatbot.conversational_qa_chain(retriever)
+
+while True:
+    user_input = input("Ask a question (type 'exit' to quit): ")
+    if user_input.lower() == "exit":
+        print("Exiting...")
+        break
+    else:
+        response = chain.invoke({"question": user_input})
+        answer = response["answer"]
+        print("Answer:", answer)
 '''

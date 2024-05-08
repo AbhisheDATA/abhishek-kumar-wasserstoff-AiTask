@@ -4,7 +4,6 @@ import json
 import os
 from wordpress_chatbot.component.vectorstore import DocumentProcessor
 from wordpress_chatbot.component.RAG_Chatbot import Chatbot
-from wordpress_chatbot import logger
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +13,7 @@ DATA_FILE_PATH = 'webhook_data.json'
 
 # Function to load data from the JSON file
 def load_data():
+    """Load data from the JSON file."""
     if os.path.exists(DATA_FILE_PATH):
         with open(DATA_FILE_PATH, 'r') as file:
             return json.load(file)
@@ -22,12 +22,13 @@ def load_data():
 
 # Function to save data to the JSON file
 def save_data(data):
+    """Save data to the JSON file."""
     with open(DATA_FILE_PATH, 'w') as file:
         json.dump(data, file, indent=4)  # Indent for better readability
 
-
 @app.route('/webhook', methods=['POST'])
 def handle_webhook():
+    """Handle incoming webhook requests."""
     # Check if the request contains JSON data
     if request.is_json:
         data = request.get_json()
@@ -38,13 +39,14 @@ def handle_webhook():
         post_url = data.get('post_url')
         print(f"Received webhook for post {post_id}: {post_title}")
         
-        object=DocumentProcessor('OpenAI')
-        docs_transformed=object.transform_document(post_title,post_content,post_id)
-        chunks=object.documents_into_chunks(docs_transformed)
-        print(f"number of chunks: {len(chunks)}")
-        embedding=object.load_embedding_model()
-        object.crate_and_load_vector_store(embedding,chunks)
-        print("vector store loaded successfully")
+        # Transform the document and create vector store
+        document = DocumentProcessor('OpenAI')
+        docs_transformed = document.transform_document(post_title, post_content, post_id)
+        chunks = document.documents_into_chunks(docs_transformed)
+        print(f"Number of chunks: {len(chunks)}")
+        embedding = document.load_embedding_model()
+        document.crate_and_load_vector_store(embedding, chunks)
+        print("Vector store loaded successfully")
         
         # Load existing data
         existing_data = load_data()
@@ -64,18 +66,19 @@ def handle_webhook():
     else:
         return jsonify({'error': 'Invalid JSON payload'}), 400
 
-
+# Initialize chatbot and conversation QA chain
 chatbot = Chatbot(llm_provider="OpenAI")
 retriever = chatbot.vectorstore_retriver()
 chain = chatbot.conversational_qa_chain(retriever)
 
 @app.route("/get", methods=["GET", "POST"])
 def chat():
+    """Handle incoming chat messages and generate responses."""
     msg = request.form["msg"]
     input = msg
     print(input)
-    response=chain.invoke({"question": input})
-    print("answer : ", response["answer"])
+    response = chain.invoke({"question": input})
+    print("Answer:", response["answer"])
     return str(response["answer"])
 
 if __name__ == '__main__':
